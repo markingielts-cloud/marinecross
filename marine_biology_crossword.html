@@ -1,0 +1,867 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Marine Biology Vocabulary Crossword</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .container {
+            max-width: 1400px;
+            width: 100%;
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 10px;
+            font-size: 2em;
+        }
+
+        .instructions {
+            text-align: center;
+            color: #555;
+            margin-bottom: 30px;
+            font-size: 1.1em;
+            padding: 15px;
+            background: #e8f4f8;
+            border-radius: 10px;
+            border-left: 5px solid #3498db;
+        }
+
+        .content-area {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .crossword-section {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .crossword-grid {
+            display: inline-grid;
+            grid-template-columns: repeat(18, 35px);
+            grid-template-rows: repeat(17, 35px);
+            gap: 1px;
+            background: #ddd;
+            padding: 5px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        .cell {
+            width: 35px;
+            height: 35px;
+            background: white;
+            border: 1px solid #999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            font-weight: bold;
+            text-transform: uppercase;
+            position: relative;
+            cursor: pointer;
+        }
+
+        .cell.black {
+            background: #333;
+            cursor: default;
+        }
+
+        .cell input {
+            width: 100%;
+            height: 100%;
+            border: none;
+            text-align: center;
+            font-size: 18px;
+            font-weight: bold;
+            text-transform: uppercase;
+            background: transparent;
+            outline: none;
+        }
+
+        .cell.active {
+            background: #ffffcc;
+        }
+
+        .cell.correct {
+            background: #d4edda;
+        }
+
+        .cell.incorrect {
+            background: #f8d7da;
+        }
+
+        .cell-number {
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            font-size: 10px;
+            font-weight: bold;
+            color: #666;
+        }
+
+        .clues-section {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            border: 2px solid #ddd;
+            max-height: 630px;
+            overflow-y: auto;
+        }
+
+        .clues-title {
+            font-size: 1.3em;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .clue-section {
+            margin-bottom: 20px;
+        }
+
+        .clue-section h3 {
+            color: #667eea;
+            margin-bottom: 10px;
+            font-size: 1.1em;
+        }
+
+        .clue {
+            margin-bottom: 10px;
+            padding: 10px;
+            background: white;
+            border-radius: 5px;
+            border-left: 3px solid #667eea;
+            line-height: 1.5;
+        }
+
+        .clue-number {
+            font-weight: bold;
+            color: #667eea;
+            margin-right: 5px;
+        }
+
+        .buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        button {
+            padding: 12px 30px;
+            font-size: 1.1em;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            color: white;
+        }
+
+        .check-btn {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+
+        .reset-btn {
+            background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.2);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        .result {
+            text-align: center;
+            font-size: 1.3em;
+            font-weight: bold;
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 10px;
+            display: none;
+        }
+
+        .result.show {
+            display: block;
+        }
+
+        .result.success {
+            background: #d4edda;
+            color: #155724;
+            border: 2px solid #28a745;
+        }
+
+        .result.partial {
+            background: #fff3cd;
+            color: #856404;
+            border: 2px solid #ffc107;
+        }
+
+        .certificate-btn {
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            display: none;
+        }
+
+        .certificate-btn.show {
+            display: inline-block;
+        }
+
+        .certificate-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .certificate-overlay.show {
+            display: flex;
+        }
+
+        .certificate {
+            background: white;
+            padding: 40px;
+            border-radius: 15px;
+            max-width: 800px;
+            width: 100%;
+            position: relative;
+            border: 5px solid #667eea;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+        }
+
+        .certificate-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .certificate-header h2 {
+            color: #667eea;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .certificate-body {
+            text-align: center;
+            line-height: 1.8;
+            font-size: 1.1em;
+        }
+
+        .student-name-cert {
+            font-size: 2em;
+            color: #2c3e50;
+            font-weight: bold;
+            margin: 20px 0;
+            text-decoration: underline;
+        }
+
+        .cert-details {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            text-align: left;
+        }
+
+        .cert-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .cert-row:last-child {
+            border-bottom: none;
+        }
+
+        .cert-label {
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .close-cert-btn {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: #f44336;
+            color: white;
+            border: none;
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            font-size: 20px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .print-btn {
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            margin-top: 20px;
+        }
+
+        @media print {
+            body * {
+                visibility: hidden;
+            }
+            .certificate, .certificate * {
+                visibility: visible;
+            }
+            .certificate {
+                position: absolute;
+                left: 0;
+                top: 0;
+            }
+            .close-cert-btn, .print-btn {
+                display: none;
+            }
+        }
+
+        @media (max-width: 1200px) {
+            .content-area {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧬 Marine Biology Vocabulary Crossword 🌊</h1>
+        
+        <div class="instructions">
+            Click on a cell and type your answer. Use arrow keys to navigate. Click "Check Answers" when done!
+        </div>
+
+        <div class="content-area">
+            <div class="crossword-section">
+                <div class="crossword-grid" id="crosswordGrid"></div>
+            </div>
+
+            <div class="clues-section">
+                <div class="clues-title">📝 Clues</div>
+                
+                <div class="clue-section">
+                    <h3>Across</h3>
+                    <div class="clue">
+                        <span class="clue-number">2.</span>
+                        (Noun) An animal hunted or caught for food by another
+                    </div>
+                    <div class="clue">
+                        <span class="clue-number">6.</span>
+                        (Noun) The production of light by living organisms
+                    </div>
+                    <div class="clue">
+                        <span class="clue-number">9.</span>
+                        (Noun/Verb) Something used to attract or entice prey or fish
+                    </div>
+                    <div class="clue">
+                        <span class="clue-number">10.</span>
+                        (Noun) An animal that hunts and eats other animals
+                    </div>
+                </div>
+
+                <div class="clue-section">
+                    <h3>Down</h3>
+                    <div class="clue">
+                        <span class="clue-number">1.</span>
+                        (Noun) A toy that spins in the wind with colorful blades
+                    </div>
+                    <div class="clue">
+                        <span class="clue-number">3.</span>
+                        (Adjective) Forming a necessary base or core; of central importance
+                    </div>
+                    <div class="clue">
+                        <span class="clue-number">4.</span>
+                        (Noun) A cloud used to hide or obscure, or a diversionary tactic
+                    </div>
+                    <div class="clue">
+                        <span class="clue-number">5.</span>
+                        (Adjective/Verb) Moving with a smooth wave-like motion
+                    </div>
+                    <div class="clue">
+                        <span class="clue-number">7.</span>
+                        (Noun) Any living thing, such as a plant, animal, or microbe
+                    </div>
+                    <div class="clue">
+                        <span class="clue-number">8.</span>
+                        (Noun) A colonial marine organism made of specialized individuals
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="buttons">
+            <button class="check-btn" onclick="checkAnswers()">Check Answers</button>
+            <button class="reset-btn" onclick="resetPuzzle()">Reset</button>
+            <button class="certificate-btn" id="certificateBtn" onclick="showCertificate()">View Certificate</button>
+        </div>
+
+        <div class="result" id="result"></div>
+    </div>
+
+    <div class="certificate-overlay" id="certificateOverlay">
+        <div class="certificate">
+            <button class="close-cert-btn" onclick="closeCertificate()">✕</button>
+            
+            <div class="certificate-header">
+                <h2>🏆 Certificate of Completion 🏆</h2>
+                <p style="color: #666;">Marine Biology Vocabulary Crossword</p>
+            </div>
+
+            <div class="certificate-body">
+                <p>This certifies that</p>
+                <div class="student-name-cert" id="certStudentName">Student Name</div>
+                <p>has completed the Marine Biology Vocabulary Crossword</p>
+
+                <div class="cert-details">
+                    <div class="cert-row">
+                        <span class="cert-label">Date:</span>
+                        <span id="certDate">--/--/----</span>
+                    </div>
+                    <div class="cert-row">
+                        <span class="cert-label">Time:</span>
+                        <span id="certTime">--:--:--</span>
+                    </div>
+                    <div class="cert-row">
+                        <span class="cert-label">Score:</span>
+                        <span id="certScore">-- / --</span>
+                    </div>
+                    <div class="cert-row">
+                        <span class="cert-label">Correct Letters:</span>
+                        <span id="certCorrect">--</span>
+                    </div>
+                    <div class="cert-row">
+                        <span class="cert-label">Incorrect Letters:</span>
+                        <span id="certIncorrect">--</span>
+                    </div>
+                </div>
+
+                <p style="font-size: 0.9em; color: #666; margin-top: 20px;">
+                    Certificate generated on: <span id="certGenerated">--</span>
+                </p>
+
+                <button class="print-btn" onclick="printCertificate()">Print Certificate</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentCell = null;
+        let attemptData = {
+            studentName: '',
+            date: '',
+            time: '',
+            correct: 0,
+            incorrect: 0,
+            hasAttempted: false
+        };
+
+        // Generated crossword grid with verified intersections
+        const gridData = [
+            [null, null, null, null, null, null, null, null, null, null, null, null, null, null, {letter: 'P', number: 1}, {letter: 'R'}, {letter: 'E'}, {letter: 'Y'}],
+            [null, null, null, null, null, null, null, null, null, null, null, null, null, null, {letter: 'I'}, null, null, null],
+            [null, null, null, null, null, null, null, null, null, null, null, null, null, null, {letter: 'N'}, null, null, null],
+            [null, null, null, null, null, null, null, {letter: 'F', number: 3}, null, null, null, null, null, null, {letter: 'W'}, null, null, null],
+            [null, null, null, null, null, {letter: 'S', number: 4}, null, {letter: 'U'}, null, null, null, null, {letter: 'U', number: 5}, null, {letter: 'H'}, null, null, null],
+            [{letter: 'B', number: 6}, {letter: 'I'}, {letter: 'O', number: 7}, {letter: 'L'}, {letter: 'U'}, {letter: 'M'}, {letter: 'I'}, {letter: 'N'}, {letter: 'E'}, {letter: 'S', number: 8}, {letter: 'C'}, {letter: 'E'}, {letter: 'N'}, {letter: 'C'}, {letter: 'E'}, null, null, null],
+            [null, null, {letter: 'R'}, null, null, {letter: 'O'}, null, {letter: 'D'}, null, {letter: 'I'}, null, null, {letter: 'D'}, null, {letter: 'E'}, null, null, null],
+            [null, null, {letter: 'G'}, null, null, {letter: 'K'}, null, {letter: 'A'}, null, {letter: 'P'}, null, null, {letter: 'U'}, null, {letter: 'L', number: 9}, {letter: 'U'}, {letter: 'R'}, {letter: 'E'}],
+            [null, null, {letter: 'A'}, null, null, {letter: 'E'}, null, {letter: 'M'}, null, {letter: 'H'}, null, null, {letter: 'L'}, null, null, null, null, null],
+            [null, null, {letter: 'N'}, null, null, {letter: 'S'}, null, {letter: 'E'}, null, {letter: 'O'}, null, null, {letter: 'A'}, null, null, null, null, null],
+            [null, null, {letter: 'I'}, null, null, {letter: 'C'}, null, {letter: 'N'}, null, {letter: 'N'}, null, null, {letter: 'T'}, null, null, null, null, null],
+            [null, null, {letter: 'S'}, null, null, {letter: 'R'}, null, {letter: 'T'}, null, {letter: 'O'}, null, null, {letter: 'I'}, null, null, null, null, null],
+            [null, null, {letter: 'M'}, null, null, {letter: 'E'}, null, {letter: 'A'}, null, {letter: 'P'}, null, null, {letter: 'N'}, null, null, null, null, null],
+            [null, null, null, null, null, {letter: 'E'}, null, {letter: 'L'}, null, {letter: 'H'}, null, null, {letter: 'G'}, null, null, null, null, null],
+            [null, null, null, null, null, {letter: 'N'}, null, null, null, {letter: 'O'}, null, null, null, null, null, null, null, null],
+            [null, null, null, null, null, null, null, null, {letter: 'P', number: 10}, {letter: 'R'}, {letter: 'E'}, {letter: 'D'}, {letter: 'A'}, {letter: 'T'}, {letter: 'O'}, {letter: 'R'}, null, null],
+            [null, null, null, null, null, null, null, null, null, {letter: 'E'}, null, null, null, null, null, null, null, null],
+        ];
+
+        function getStudentName() {
+            const name = prompt("Please enter your full name to begin:");
+            if (name && name.trim()) {
+                attemptData.studentName = name.trim();
+                return true;
+            } else {
+                alert("You must enter your name to use the crossword!");
+                return getStudentName();
+            }
+        }
+
+        function initGrid() {
+            const grid = document.getElementById('crosswordGrid');
+            
+            gridData.forEach((row, rowIndex) => {
+                row.forEach((cell, colIndex) => {
+                    const cellDiv = document.createElement('div');
+                    cellDiv.className = 'cell';
+                    
+                    if (cell === null) {
+                        cellDiv.classList.add('black');
+                    } else {
+                        const input = document.createElement('input');
+                        input.type = 'text';
+                        input.maxLength = 1;
+                        input.dataset.row = rowIndex;
+                        input.dataset.col = colIndex;
+                        input.dataset.letter = cell.letter;
+                        
+                        input.addEventListener('input', handleInput);
+                        input.addEventListener('keydown', handleKeydown);
+                        input.addEventListener('focus', () => selectCell(input));
+                        
+                        if (cell.number) {
+                            const numberSpan = document.createElement('span');
+                            numberSpan.className = 'cell-number';
+                            numberSpan.textContent = cell.number;
+                            cellDiv.appendChild(numberSpan);
+                        }
+                        
+                        cellDiv.appendChild(input);
+                    }
+                    
+                    grid.appendChild(cellDiv);
+                });
+            });
+        }
+
+        function handleInput(e) {
+            const input = e.target;
+            if (input.value) {
+                const row = parseInt(input.dataset.row);
+                const col = parseInt(input.dataset.col);
+                moveRight(row, col);
+            }
+        }
+
+        function handleKeydown(e) {
+            const input = e.target;
+            const row = parseInt(input.dataset.row);
+            const col = parseInt(input.dataset.col);
+            
+            switch(e.key) {
+                case 'ArrowRight':
+                    e.preventDefault();
+                    moveRight(row, col);
+                    break;
+                case 'ArrowLeft':
+                    e.preventDefault();
+                    moveLeft(row, col);
+                    break;
+                case 'ArrowDown':
+                    e.preventDefault();
+                    moveDown(row, col);
+                    break;
+                case 'ArrowUp':
+                    e.preventDefault();
+                    moveUp(row, col);
+                    break;
+                case 'Backspace':
+                    if (!input.value) {
+                        e.preventDefault();
+                        moveLeft(row, col);
+                    }
+                    break;
+            }
+        }
+
+        function selectCell(input) {
+            if (currentCell) {
+                currentCell.parentElement.classList.remove('active');
+            }
+            currentCell = input;
+            input.parentElement.classList.add('active');
+            input.focus();
+        }
+
+        function moveRight(row, col) {
+            for (let nextCol = col + 1; nextCol < gridData[row].length; nextCol++) {
+                if (gridData[row][nextCol] !== null) {
+                    const nextInput = document.querySelector(`input[data-row="${row}"][data-col="${nextCol}"]`);
+                    if (nextInput) {
+                        selectCell(nextInput);
+                        return;
+                    }
+                }
+            }
+        }
+
+        function moveLeft(row, col) {
+            for (let prevCol = col - 1; prevCol >= 0; prevCol--) {
+                if (gridData[row][prevCol] !== null) {
+                    const prevInput = document.querySelector(`input[data-row="${row}"][data-col="${prevCol}"]`);
+                    if (prevInput) {
+                        selectCell(prevInput);
+                        return;
+                    }
+                }
+            }
+        }
+
+        function moveDown(row, col) {
+            for (let nextRow = row + 1; nextRow < gridData.length; nextRow++) {
+                if (gridData[nextRow][col] !== null) {
+                    const nextInput = document.querySelector(`input[data-row="${nextRow}"][data-col="${col}"]`);
+                    if (nextInput) {
+                        selectCell(nextInput);
+                        return;
+                    }
+                }
+            }
+        }
+
+        function moveUp(row, col) {
+            for (let prevRow = row - 1; prevRow >= 0; prevRow--) {
+                if (gridData[prevRow][col] !== null) {
+                    const prevInput = document.querySelector(`input[data-row="${prevRow}"][data-col="${col}"]`);
+                    if (prevInput) {
+                        selectCell(prevInput);
+                        return;
+                    }
+                }
+            }
+        }
+
+        function checkAnswers() {
+            let correct = 0;
+            let total = 0;
+            let incorrect = 0;
+
+            const now = new Date();
+            attemptData.date = now.toLocaleDateString();
+            attemptData.time = now.toLocaleTimeString();
+            attemptData.hasAttempted = true;
+
+            document.querySelectorAll('.cell:not(.black)').forEach(cell => {
+                cell.classList.remove('correct', 'incorrect');
+            });
+
+            const words = getWordsList();
+            const completeWords = new Set();
+            const incompleteWords = new Set();
+            
+            words.forEach(word => {
+                let isComplete = true;
+                word.cells.forEach(pos => {
+                    const input = document.querySelector(`input[data-row="${pos.row}"][data-col="${pos.col}"]`);
+                    if (!input || !input.value) {
+                        isComplete = false;
+                    }
+                });
+                
+                if (isComplete) {
+                    completeWords.add(word.id);
+                } else {
+                    incompleteWords.add(word.id);
+                }
+            });
+
+            gridData.forEach((row, rowIndex) => {
+                row.forEach((cell, colIndex) => {
+                    if (cell !== null) {
+                        total++;
+                        const input = document.querySelector(`input[data-row="${rowIndex}"][data-col="${colIndex}"]`);
+                        const cellDiv = input.parentElement;
+                        
+                        let isInCompleteWord = false;
+                        words.forEach(word => {
+                            if (completeWords.has(word.id)) {
+                                word.cells.forEach(pos => {
+                                    if (pos.row === rowIndex && pos.col === colIndex) {
+                                        isInCompleteWord = true;
+                                    }
+                                });
+                            }
+                        });
+                        
+                        if (isInCompleteWord) {
+                            if (input.value.toUpperCase() === cell.letter) {
+                                cellDiv.classList.add('correct');
+                                correct++;
+                            } else if (input.value) {
+                                cellDiv.classList.add('incorrect');
+                                incorrect++;
+                            }
+                        }
+                    }
+                });
+            });
+
+            attemptData.correct = correct;
+            attemptData.incorrect = incorrect;
+
+            const resultDiv = document.getElementById('result');
+            resultDiv.classList.add('show');
+
+            const checkedLetters = correct + incorrect;
+            
+            if (incompleteWords.size > 0) {
+                if (correct === checkedLetters && checkedLetters > 0) {
+                    resultDiv.className = 'result show success';
+                    resultDiv.textContent = `✅ Excellent! ${correct} letters correct! (${incompleteWords.size} incomplete word${incompleteWords.size > 1 ? 's' : ''} ignored)`;
+                } else {
+                    resultDiv.className = 'result show partial';
+                    resultDiv.textContent = `You got ${correct} out of ${checkedLetters} letters correct. (${incompleteWords.size} incomplete word${incompleteWords.size > 1 ? 's' : ''} ignored)`;
+                }
+            } else {
+                if (correct === total) {
+                    resultDiv.className = 'result show success';
+                    resultDiv.textContent = '🎉 Perfect! You completed the entire crossword correctly! 🎉';
+                } else {
+                    resultDiv.className = 'result show partial';
+                    resultDiv.textContent = `You got ${correct} out of ${total} letters correct. Keep trying!`;
+                }
+            }
+
+            document.getElementById('certificateBtn').classList.add('show');
+        }
+
+        function getWordsList() {
+            const words = [];
+            
+            gridData.forEach((row, rowIndex) => {
+                let wordStart = -1;
+                let wordCells = [];
+                
+                row.forEach((cell, colIndex) => {
+                    if (cell !== null) {
+                        if (wordStart === -1) wordStart = colIndex;
+                        wordCells.push({ row: rowIndex, col: colIndex });
+                    } else {
+                        if (wordCells.length > 1) {
+                            words.push({ id: `h_${rowIndex}_${wordStart}`, cells: [...wordCells] });
+                        }
+                        wordStart = -1;
+                        wordCells = [];
+                    }
+                });
+                
+                if (wordCells.length > 1) {
+                    words.push({ id: `h_${rowIndex}_${wordStart}`, cells: [...wordCells] });
+                }
+            });
+            
+            for (let colIndex = 0; colIndex < gridData[0].length; colIndex++) {
+                let wordStart = -1;
+                let wordCells = [];
+                
+                for (let rowIndex = 0; rowIndex < gridData.length; rowIndex++) {
+                    const cell = gridData[rowIndex][colIndex];
+                    
+                    if (cell !== null) {
+                        if (wordStart === -1) wordStart = rowIndex;
+                        wordCells.push({ row: rowIndex, col: colIndex });
+                    } else {
+                        if (wordCells.length > 1) {
+                            words.push({ id: `v_${wordStart}_${colIndex}`, cells: [...wordCells] });
+                        }
+                        wordStart = -1;
+                        wordCells = [];
+                    }
+                }
+                
+                if (wordCells.length > 1) {
+                    words.push({ id: `v_${wordStart}_${colIndex}`, cells: [...wordCells] });
+                }
+            }
+            
+            return words;
+        }
+
+        function resetPuzzle() {
+            document.querySelectorAll('input').forEach(input => {
+                input.value = '';
+                input.parentElement.classList.remove('correct', 'incorrect', 'active');
+            });
+            document.getElementById('result').classList.remove('show');
+            document.getElementById('certificateBtn').classList.remove('show');
+            currentCell = null;
+            attemptData.hasAttempted = false;
+        }
+
+        function showCertificate() {
+            if (!attemptData.hasAttempted) {
+                alert('Please check your answers at least once before viewing the certificate!');
+                return;
+            }
+            
+            document.getElementById('certStudentName').textContent = attemptData.studentName;
+            document.getElementById('certDate').textContent = attemptData.date;
+            document.getElementById('certTime').textContent = attemptData.time;
+            document.getElementById('certCorrect').textContent = attemptData.correct;
+            document.getElementById('certIncorrect').textContent = attemptData.incorrect;
+            
+            let totalLetters = 0;
+            gridData.forEach(row => {
+                row.forEach(cell => {
+                    if (cell !== null) totalLetters++;
+                });
+            });
+            
+            const percentage = Math.round((attemptData.correct / totalLetters) * 100);
+            document.getElementById('certScore').textContent = `${attemptData.correct} / ${totalLetters} (${percentage}%)`;
+            
+            const now = new Date();
+            document.getElementById('certGenerated').textContent = now.toLocaleString();
+            
+            document.getElementById('certificateOverlay').classList.add('show');
+        }
+
+        function closeCertificate() {
+            document.getElementById('certificateOverlay').classList.remove('show');
+        }
+
+        function printCertificate() {
+            window.print();
+        }
+
+        document.getElementById('certificateOverlay').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeCertificate();
+            }
+        });
+
+        if (getStudentName()) {
+            initGrid();
+        }
+    </script>
+</body>
+</html>
